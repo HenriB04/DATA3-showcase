@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transparante Data-inwinning in de Stad – Henri Broekhoff</title>
+  <style>
+    :root {
+      --blauw: #1a3a5c;
+      --lichtblauw: #2e6da4;
+      --accent: #3eb8c8;
+      --lichtgrijs: #f4f7fb;
+      --tekst: #1e1e1e;
+      --subtekst: #555;
+      --wit: #ffffff;
+      --groen: #2ca87f;
+      --oranje: #e07b39;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--tekst);
+      background: var(--wit);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--blauw);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .nav-logo { color: var(--wit); font-weight: 700; font-size: 1rem; letter-spacing: 0.5px; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent); color: var(--wit); border: none;
+      padding: 0.45rem 1.1rem; border-radius: 20px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: #2da0ae; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--blauw) 0%, #1a4a7a 50%, #0f2940 100%);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; padding: 6rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-tag {
+      background: rgba(62,184,200,0.2); border: 1px solid var(--accent);
+      color: var(--accent); padding: 0.3rem 1rem; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800; color: var(--wit); line-height: 1.15;
+      max-width: 800px; margin-bottom: 1rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.75); max-width: 620px;
+      margin-bottom: 2.5rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: var(--accent); color: var(--wit); padding: 0.9rem 2rem;
+      border-radius: 30px; font-weight: 700; font-size: 0.95rem;
+      text-decoration: none; transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(62,184,200,0.4);
+    }
+    .btn-primary:hover { background: #2da0ae; transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent; color: var(--wit);
+      border: 2px solid rgba(255,255,255,0.4);
+      padding: 0.9rem 2rem; border-radius: 30px; font-weight: 600;
+      font-size: 0.95rem; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--wit); background: rgba(255,255,255,0.08); }
+
+    .hero-meta {
+      margin-top: 3rem; display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
+    }
+    .hero-meta-item { text-align: center; }
+    .hero-meta-item .label { color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+    .hero-meta-item .val { color: var(--wit); font-weight: 600; font-size: 0.95rem; margin-top: 0.2rem; }
+
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.4); font-size: 0.8rem; text-align: center;
+      animation: bounce 2s infinite;
+    }
+    .scroll-hint::after { content: '↓'; display: block; font-size: 1.2rem; margin-top: 4px; }
+    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+    /* SECTIONS */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      color: var(--accent); font-size: 0.78rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800; color: var(--blauw); margin-bottom: 1rem; line-height: 1.2;
+    }
+    .section-intro {
+      font-size: 1.05rem; color: var(--subtekst);
+      max-width: 650px; margin-bottom: 3rem;
+    }
+
+    /* ONDERZOEK OVERVIEW */
+    .aanleiding { background: var(--lichtgrijs); }
+    .vraag-box {
+      background: var(--wit); border-left: 4px solid var(--accent);
+      padding: 1.5rem 2rem; border-radius: 0 12px 12px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 2rem;
+    }
+    .vraag-box .label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 0.4rem; }
+    .vraag-box p { font-size: 1.05rem; color: var(--blauw); font-weight: 600; line-height: 1.5; }
+
+    .deelvragen-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .dv-card {
+      background: var(--wit); border-radius: 12px; padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border-top: 3px solid var(--lichtblauw);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dv-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .dv-num { font-size: 2rem; font-weight: 900; color: var(--accent); opacity: 0.3; line-height: 1; margin-bottom: 0.5rem; }
+    .dv-title { font-weight: 700; color: var(--blauw); font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .dv-text { font-size: 0.85rem; color: var(--subtekst); }
+
+    /* RESULTATEN */
+    .resultaten { background: var(--wit); }
+    .res-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .tab-btn {
+      padding: 0.5rem 1.2rem; border-radius: 20px; border: 2px solid #dce4ef;
+      background: transparent; color: var(--subtekst); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn.active, .tab-btn:hover { background: var(--blauw); color: var(--wit); border-color: var(--blauw); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    .res-conclusie {
+      background: linear-gradient(135deg, var(--blauw), var(--lichtblauw));
+      color: var(--wit); padding: 1.5rem 2rem; border-radius: 12px;
+      margin-top: 1.5rem; font-size: 0.95rem; line-height: 1.6;
+    }
+    .res-conclusie strong { color: var(--accent); }
+
+    /* TABELLEN */
+    .tabel-wrap { overflow-x: auto; margin: 1.5rem 0; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th {
+      background: var(--blauw); color: var(--wit); padding: 0.8rem 1rem;
+      text-align: left; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.3px;
+    }
+    tbody tr:nth-child(even) { background: var(--lichtgrijs); }
+    tbody tr:hover { background: #e8f0fa; }
+    tbody td { padding: 0.7rem 1rem; border-bottom: 1px solid #e0e8f0; color: var(--tekst); }
+    .tag-ja { background: #d4f0e4; color: #1a6b48; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 700; }
+    .tag-nee { background: #fde8d8; color: #8b3a0f; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 700; }
+    .tag-laag { background: #d4f0e4; color: #1a6b48; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
+    .tag-mid { background: #fff3cd; color: #7d5500; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
+    .tag-hoog { background: #fde8d8; color: #8b3a0f; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
+    .tag-best { background: var(--accent); color: var(--wit); padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-weight: 700; }
+    .figcaption { text-align: center; font-size: 0.8rem; color: var(--subtekst); font-style: italic; margin-top: 0.5rem; }
+
+    .knelpunten-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.2rem 0; }
+    .knelpunt-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: var(--lichtgrijs); padding: 1rem 1.2rem; border-radius: 10px;
+    }
+    .kp-num { background: var(--lichtblauw); color: var(--wit); width: 28px; height: 28px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+    .kp-text { font-size: 0.9rem; color: var(--tekst); }
+    .kp-text strong { color: var(--blauw); }
+
+    /* CONCLUSIE */
+    .conclusie { background: var(--lichtgrijs); }
+    .systeem-steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin: 2rem 0;
+    }
+    .stap-card {
+      background: var(--wit); border-radius: 14px; padding: 1.8rem;
+      box-shadow: 0 3px 16px rgba(0,0,0,0.07);
+      display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .stap-icon { font-size: 2.2rem; }
+    .stap-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--blauw); }
+    .stap-card p { font-size: 0.88rem; color: var(--subtekst); }
+    .stap-card .stap-nr { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+
+    .aanbevelingen { margin-top: 2.5rem; }
+    .aanbevelingen h3 { font-size: 1.2rem; font-weight: 700; color: var(--blauw); margin-bottom: 1rem; }
+    .aanbev-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .aanbev-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--wit); padding: 1rem 1.2rem; border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .aanbev-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+    .aanbev-text strong { color: var(--blauw); display: block; font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .aanbev-text p { font-size: 0.85rem; color: var(--subtekst); margin: 0; }
+
+    /* PROTOTYPE */
+    .prototype { background: var(--wit); }
+    .proto-demo {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+      margin-top: 2.5rem;
+    }
+    .proto-beschrijving h3 { font-size: 1.2rem; font-weight: 700; color: var(--blauw); margin-bottom: 1rem; }
+    .proto-beschrijving p { font-size: 0.92rem; color: var(--subtekst); margin-bottom: 1rem; }
+    .proto-features { display: flex; flex-direction: column; gap: 0.6rem; margin: 1.2rem 0; }
+    .proto-feat {
+      display: flex; align-items: center; gap: 0.8rem;
+      font-size: 0.88rem; color: var(--tekst);
+    }
+    .proto-feat::before { content: '✓'; color: var(--groen); font-weight: 900; font-size: 1rem; flex-shrink: 0; }
+
+    .phone-frame {
+      max-width: 280px; margin: 0 auto;
+      background: #1a1a1a; border-radius: 44px; padding: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .phone-screen {
+      background: var(--wit); border-radius: 34px; overflow: hidden;
+      position: relative; min-height: 520px;
+    }
+    .phone-notch {
+      background: #1a1a1a; width: 90px; height: 24px; border-radius: 0 0 16px 16px;
+      margin: 0 auto; position: relative; z-index: 2;
+    }
+    .phone-content { padding: 0; font-size: 11px; }
+    .p-header {
+      background: var(--blauw); color: var(--wit); padding: 12px 14px 10px;
+      font-size: 10px;
+    }
+    .p-header .p-title { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
+    .p-header .p-sub { opacity: 0.75; font-size: 9px; }
+    .p-section { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+    .p-section-title { font-weight: 700; color: var(--blauw); font-size: 9.5px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .p-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 9px; }
+    .p-row .pk { color: var(--subtekst); }
+    .p-row .pv { font-weight: 600; color: var(--tekst); }
+    .p-map {
+      margin: 0 14px 10px;
+      background: #e8f4e8; border-radius: 8px; height: 80px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: var(--subtekst); position: relative; overflow: hidden;
+    }
+    .p-map::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, #d4ecd4, #b8d8b8);
+    }
+    .p-map-text { position: relative; text-align: center; }
+    .p-bezwaar {
+      margin: 8px 14px 14px; background: #fff3cd; border-radius: 6px;
+      padding: 6px 8px; font-size: 8.5px; color: #7d5500; text-align: center;
+    }
+    .p-bezwaar strong { display: block; margin-bottom: 1px; }
+
+    /* OVER MIJ */
+    .over { background: var(--lichtgrijs); }
+    .over-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; align-items: start; }
+    .over-kaart {
+      background: linear-gradient(135deg, var(--blauw), var(--lichtblauw));
+      border-radius: 16px; padding: 2rem; color: var(--wit); text-align: center;
+    }
+    .over-avatar {
+      width: 80px; height: 80px; background: var(--accent); border-radius: 50%;
+      margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800; color: var(--wit);
+    }
+    .over-kaart h3 { font-size: 1.2rem; margin-bottom: 0.3rem; }
+    .over-kaart p { font-size: 0.82rem; opacity: 0.8; }
+    .over-kaart .badge {
+      display: inline-block; background: rgba(62,184,200,0.2); border: 1px solid var(--accent);
+      color: var(--accent); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem;
+      margin-top: 0.8rem; font-weight: 600;
+    }
+    .over-content h3 { font-size: 1.15rem; font-weight: 700; color: var(--blauw); margin-bottom: 0.8rem; }
+    .over-content p { font-size: 0.92rem; color: var(--subtekst); margin-bottom: 1rem; }
+    .over-skills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+    .skill-tag {
+      background: var(--wit); border: 1.5px solid #dce4ef; color: var(--blauw);
+      padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--blauw); color: rgba(255,255,255,0.6);
+      padding: 2.5rem; text-align: center; font-size: 0.85rem;
+    }
+    footer strong { color: var(--wit); }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .proto-demo { grid-template-columns: 1fr; }
+      .over-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATIE -->
+<nav>
+  <div class="nav-logo">DATA<span>3</span> Showcase</div>
+  <ul class="nav-links">
+    <li><a href="#onderzoek">Onderzoek</a></li>
+    <li><a href="#resultaten">Resultaten</a></li>
+    <li><a href="#conclusie">Conclusie</a></li>
+    <li><a href="#prototype">Prototype</a></li>
+    <li><a href="#over">Over mij</a></li>
+  </ul>
+  <a href="prototype.html" class="nav-cta">Bekijk prototype →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Onderzoeksrapport · DATA 3 · Built Environment</div>
+  <h1>Transparante <span>Data-inwinning</span> in de Stad</h1>
+  <p class="hero-sub">Een communicatiestrategie voor bewoners bij drone- en sensoropnames in de gebouwde omgeving</p>
+  <div class="hero-btns">
+    <a href="#resultaten" class="btn-primary">Bekijk de resultaten</a>
+    <a href="prototype.html" class="btn-outline">Bewonersprototype →</a>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <div class="label">Student</div>
+      <div class="val">Henri Broekhoff</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="label">Opleiding</div>
+      <div class="val">Built Environment, HU</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="label">Periode</div>
+      <div class="val">Jaar 1 · Mei 2026</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="label">Methode</div>
+      <div class="val">Deskresearch</div>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll naar beneden</div>
+</section>
+
+<!-- AANLEIDING & ONDERZOEKSVRAGEN -->
+<section class="aanleiding" id="onderzoek">
+  <div class="container">
+    <p class="section-label">Aanleiding & Vraagstelling</p>
+    <h2 class="section-title">Waarom dit onderzoek?</h2>
+    <p class="section-intro">
+      Bij het verzamelen van data in de stad met drones en LiDAR-sensoren weten bewoners vaak niet wat er gebeurt, wie het doet, en wat er met hun gegevens gebeurt. Dit leidt tot weerstand, klachten en vertragingen.
+    </p>
+
+    <div class="vraag-box">
+      <div class="label">Hoofdvraag</div>
+      <p>Op welke digitale wijze kunnen bewoners in een stedelijke omgeving effectief en transparant worden geïnformeerd over grootschalige data-inwinning (zoals dronevluchten en 3D-scans), zodat hun zorgen over privacy afnemen en hinder tijdens het inwinningsproces wordt voorkomen?</p>
+    </div>
+
+    <div class="deelvragen-grid">
+      <div class="dv-card">
+        <div class="dv-num">01</div>
+        <div class="dv-title">Juridisch kader</div>
+        <div class="dv-text">Welke wettelijke kaders (AVG/GDPR) gelden bij het maken van foto- en scandata in de openbare ruimte?</div>
+      </div>
+      <div class="dv-card">
+        <div class="dv-num">02</div>
+        <div class="dv-title">Huidige praktijk</div>
+        <div class="dv-text">Hoe worden bewoners nu ingelicht bij grootschalige projecten en waar liggen de knelpunten?</div>
+      </div>
+      <div class="dv-card">
+        <div class="dv-num">03</div>
+        <div class="dv-title">Informatiebehoefte</div>
+        <div class="dv-text">Wat is voor een bewoner de minimale informatie om zich veilig en geïnformeerd te voelen?</div>
+      </div>
+      <div class="dv-card">
+        <div class="dv-num">04</div>
+        <div class="dv-title">Digitale oplossing</div>
+        <div class="dv-text">Welke digitale middelen (QR-codes, interactieve kaarten, AR) zijn het meest geschikt voor just-in-time informatieverstrekking?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTATEN -->
+<section class="resultaten" id="resultaten">
+  <div class="container">
+    <p class="section-label">Onderzoeksresultaten</p>
+    <h2 class="section-title">Wat heeft het onderzoek opgeleverd?</h2>
+
+    <div class="res-tabs">
+      <button class="tab-btn active" onclick="toonTab('dv1', this)">DV 1 – Juridisch kader</button>
+      <button class="tab-btn" onclick="toonTab('dv2', this)">DV 2 – Huidige praktijk</button>
+      <button class="tab-btn" onclick="toonTab('dv3', this)">DV 3 – Informatiebehoefte</button>
+      <button class="tab-btn" onclick="toonTab('dv4', this)">DV 4 – Digitale middelen</button>
+    </div>
+
+    <!-- DV 1 -->
+    <div id="dv1" class="tab-content active">
+      <p style="color:var(--subtekst); margin-bottom:1.5rem;">De AVG is van toepassing zodra drone- of sensoropnames identificeerbare personen of kentekens vastleggen. Er gelden drie kernbeginselen:</p>
+      <div class="tabel-wrap">
+        <table>
+          <thead>
+            <tr><th>AVG-beginsel</th><th>Wat het betekent in de praktijk</th><th>Artikel</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Doelbinding</strong></td><td>Data mag uitsluitend worden verzameld voor het opgegeven doel (bijv. 3D-modellering)</td><td>Art. 5 lid 1b</td></tr>
+            <tr><td><strong>Minimale gegevensverwerking</strong></td><td>Persoonsgegevens worden zo beperkt mogelijk vastgelegd</td><td>Art. 5 lid 1c</td></tr>
+            <tr><td><strong>Transparantie</strong></td><td>Betrokkenen moeten actief worden geïnformeerd over de verwerking</td><td>Art. 5 lid 1a</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:var(--subtekst); font-size:0.9rem; margin-bottom:1rem;">Daarnaast verplicht <strong>artikel 13 AVG</strong> de verwerkingsverantwoordelijke om bij het verzamelen van persoonsgegevens actief informatie te verstrekken over de identiteit van de verantwoordelijke, het doel van de verwerking, de bewaartermijn en de rechten van betrokkenen.</p>
+      <p style="color:var(--subtekst); font-size:0.9rem; margin-bottom:1rem;">De <strong>EASA-regelgeving</strong> (van kracht in NL sinds 2021) maakt onderscheid tussen de open categorie (standaard vluchten, beperkte risico's) en de specifieke categorie (hogere risico's, vereist operationele autorisatie van de ILT).</p>
+      <div class="res-conclusie">
+        <strong>Conclusie DV 1:</strong> Er bestaat een wettelijke verplichting tot transparantie bij data-inwinning, maar de concrete invulling is niet gestandaardiseerd. Er is duidelijke ruimte en noodzaak voor een aanvullende communicatiemethodiek.
+      </div>
+    </div>
+
+    <!-- DV 2 -->
+    <div id="dv2" class="tab-content">
+      <p style="color:var(--subtekst); margin-bottom:1.5rem;">Bestaande communicatiepraktijken bestaan doorgaans uit een vermelding op de website, aankondigingen via gemeentelijke kanalen en opschriften op meetvoertuigen. Deze aanpak heeft vier structurele knelpunten:</p>
+      <div class="knelpunten-list">
+        <div class="knelpunt-item">
+          <div class="kp-num">1</div>
+          <div class="kp-text"><strong>Lage vindbaarheid</strong> – bewoners zoeken niet actief naar deze informatie op websites van uitvoerende organisaties.</div>
+        </div>
+        <div class="knelpunt-item">
+          <div class="kp-num">2</div>
+          <div class="kp-text"><strong>Geen realtime locatiegerichtheid</strong> – aankondigingen zijn niet gekoppeld aan een specifieke locatie of tijdstip.</div>
+        </div>
+        <div class="knelpunt-item">
+          <div class="kp-num">3</div>
+          <div class="kp-text"><strong>Taalniveau en toegankelijkheid</strong> – technische taal sluit niet aan bij de gemiddelde bewoner.</div>
+        </div>
+        <div class="knelpunt-item">
+          <div class="kp-num">4</div>
+          <div class="kp-text"><strong>Geen interactiemogelijkheid</strong> – er is geen laagdrempelige manier voor bewoners om vragen te stellen of bezwaar te maken.</div>
+        </div>
+      </div>
+      <div class="res-conclusie">
+        <strong>Conclusie DV 2:</strong> De huidige communicatie is reactief en niet locatiegericht. De knelpunten liggen primair bij timing, bereik en toegankelijkheid van informatie.
+      </div>
+    </div>
+
+    <!-- DV 3 -->
+    <div id="dv3" class="tab-content">
+      <p style="color:var(--subtekst); margin-bottom:1.5rem;">Op basis van de AVG (art. 13) en het concept <em>contextual integrity</em> (Nissenbaum, 2010) zijn zes minimale informatiebehoeften geïdentificeerd. Bewoners stellen zich gerust zodra zij weten wie, wat en waarom:</p>
+      <div class="tabel-wrap">
+        <table>
+          <thead>
+            <tr><th>Informatiebehoefte</th><th>Concrete vraag van de bewoner</th><th>AVG-grondslag</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Identiteit uitvoerder</strong></td><td>Wie doet dit?</td><td>Art. 13 lid 1a</td></tr>
+            <tr><td><strong>Aard van de meting</strong></td><td>Wat wordt er precies gemeten?</td><td>Art. 13 lid 1c</td></tr>
+            <tr><td><strong>Doel</strong></td><td>Waarvoor wordt dit gebruikt?</td><td>Art. 13 lid 1c</td></tr>
+            <tr><td><strong>Tijdsduur</strong></td><td>Hoe lang duurt dit?</td><td>–</td></tr>
+            <tr><td><strong>Gegevensverwerking</strong></td><td>Wat gebeurt er met mijn gegevens?</td><td>Art. 13 lid 2a</td></tr>
+            <tr><td><strong>Bezwaarmogelijkheid</strong></td><td>Kan ik bezwaar maken?</td><td>Art. 13 lid 2b/c</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="figcaption">Tabel 1: Minimale informatiebehoeften van bewoners en AVG-grondslag</p>
+      <div class="res-conclusie">
+        <strong>Conclusie DV 3:</strong> De minimale informatiebehoefte bestaat uit zes categorieën die direct aansluiten op de transparantieverplichtingen uit de AVG.
+      </div>
+    </div>
+
+    <!-- DV 4 -->
+    <div id="dv4" class="tab-content">
+      <p style="color:var(--subtekst); margin-bottom:1.5rem;">Zes digitale communicatiemiddelen zijn vergeleken op bereik, laagdrempeligheid, implementatiekosten en realtime inzetbaarheid:</p>
+      <div class="tabel-wrap">
+        <table>
+          <thead>
+            <tr><th>Middel</th><th>Bereik</th><th>Laagdrempeligheid</th><th>Kosten</th><th>Realtime</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>QR-code op voertuig of bord</strong> <span class="tag-best">Aanbevolen</span></td>
+              <td><span class="tag-laag">Hoog</span> (ter plaatse)</td>
+              <td><span class="tag-laag">Hoog</span></td>
+              <td><span class="tag-laag">Laag</span></td>
+              <td><span class="tag-ja">Ja</span></td>
+            </tr>
+            <tr>
+              <td><strong>Interactieve kaart (webpagina)</strong> <span class="tag-best">Aanbevolen</span></td>
+              <td><span class="tag-mid">Middel</span></td>
+              <td><span class="tag-laag">Hoog</span></td>
+              <td><span class="tag-mid">Middel</span></td>
+              <td><span class="tag-ja">Ja</span></td>
+            </tr>
+            <tr>
+              <td>Push-notificatie via app</td>
+              <td><span class="tag-hoog">Laag</span></td>
+              <td><span class="tag-mid">Middel</span></td>
+              <td><span class="tag-hoog">Hoog</span></td>
+              <td><span class="tag-ja">Ja</span></td>
+            </tr>
+            <tr>
+              <td>SMS/WhatsApp-notificatie</td>
+              <td><span class="tag-mid">Middel</span></td>
+              <td><span class="tag-laag">Hoog</span></td>
+              <td><span class="tag-mid">Middel</span></td>
+              <td><span class="tag-ja">Ja</span></td>
+            </tr>
+            <tr>
+              <td>AR-overlay</td>
+              <td><span class="tag-hoog">Laag</span></td>
+              <td><span class="tag-hoog">Laag</span></td>
+              <td><span class="tag-hoog">Hoog</span></td>
+              <td><span class="tag-ja">Ja</span></td>
+            </tr>
+            <tr>
+              <td>Gemeentelijke nieuwsbrief</td>
+              <td><span class="tag-laag">Hoog</span></td>
+              <td><span class="tag-laag">Hoog</span></td>
+              <td><span class="tag-laag">Laag</span></td>
+              <td><span class="tag-nee">Nee</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="figcaption">Tabel 2: Vergelijking digitale communicatiemiddelen voor just-in-time bewonersinfo</p>
+      <div class="res-conclusie">
+        <strong>Conclusie DV 4:</strong> Een QR-code gekoppeld aan een informatiewebpagina met interactieve kaart is het meest effectieve en haalbare digitale middel voor just-in-time communicatie met bewoners.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSIE -->
+<section class="conclusie" id="conclusie">
+  <div class="container">
+    <p class="section-label">Conclusie & Aanbevelingen</p>
+    <h2 class="section-title">De oplossing: drie componenten</h2>
+    <p class="section-intro">Bewoners kunnen het meest effectief worden geïnformeerd via een laagdrempelig, locatiegericht digitaal systeem bestaande uit drie onderdelen:</p>
+
+    <div class="systeem-steps">
+      <div class="stap-card">
+        <div class="stap-icon">📱</div>
+        <div class="stap-nr">Stap 1</div>
+        <h3>QR-code op het voertuig</h3>
+        <p>Een zichtbare QR-code op het meetvoertuig of een tijdelijk informatiebord ter plaatse. Bewoners scannen de code op het moment dat zij de meting zien – <em>just-in-time</em>.</p>
+      </div>
+      <div class="stap-card">
+        <div class="stap-icon">🌐</div>
+        <div class="stap-nr">Stap 2</div>
+        <h3>Mobieloptimale webpagina</h3>
+        <p>De QR-code leidt naar een eenvoudige, mobielvriendelijke webpagina met de zes kernvragen beantwoord in begrijpelijke taal. Geen app-installatie vereist.</p>
+      </div>
+      <div class="stap-card">
+        <div class="stap-icon">🗺️</div>
+        <div class="stap-nr">Stap 3</div>
+        <h3>Interactieve kaart</h3>
+        <p>Een kaart waarop het meetgebied en de tijdsduur van de activiteit zichtbaar zijn. Dit vergroot het gevoel van controle en maakt de meting concreet.</p>
+      </div>
+    </div>
+
+    <div class="aanbevelingen">
+      <h3>Aanbevelingen voor de sector</h3>
+      <div class="aanbev-list">
+        <div class="aanbev-item">
+          <div class="aanbev-icon">📋</div>
+          <div class="aanbev-text">
+            <strong>Stel een branchestandaard op</strong>
+            <p>Ontwikkel een sectorbrede minimumstandaard voor communicatie bij data-inwinning, vergelijkbaar met CROW-richtlijnen voor wegwerkzaamheden.</p>
+          </div>
+        </div>
+        <div class="aanbev-item">
+          <div class="aanbev-icon">🖥️</div>
+          <div class="aanbev-text">
+            <strong>Ontwikkel een generieke webpagina-template</strong>
+            <p>Een aanpasbare template die door verschillende uitvoerende organisaties ingezet kan worden en voldoet aan de AVG-informatieverplichtingen.</p>
+          </div>
+        </div>
+        <div class="aanbev-item">
+          <div class="aanbev-icon">🏛️</div>
+          <div class="aanbev-text">
+            <strong>Integreer met gemeentelijke kanalen</strong>
+            <p>Koppel aan bestaande informatiekanalen zoals het Digitale Stelsel Omgevingswet (DSO) of gemeentelijke apps voor proactieve aankondigingen.</p>
+          </div>
+        </div>
+        <div class="aanbev-item">
+          <div class="aanbev-icon">🧪</div>
+          <div class="aanbev-text">
+            <strong>Voer gebruikerstests uit</strong>
+            <p>Test de webpagina met bewoners uit diverse doelgroepen om taal, opmaak en vindbaarheid verder te optimaliseren.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROTOTYPE -->
+<section class="prototype" id="prototype">
+  <div class="container">
+    <p class="section-label">Eindproduct</p>
+    <h2 class="section-title">Prototype: bewonerspagina</h2>
+    <p class="section-intro">Het prototype toont hoe een bewoner na het scannen van de QR-code direct antwoord krijgt op alle zes kernvragen – eenvoudig, snel en op de telefoon.</p>
+
+    <div class="proto-demo">
+      <div class="proto-beschrijving">
+        <h3>Hoe werkt het?</h3>
+        <p>Een bewoner die een drone of meetvoertuig ziet, scant de QR-code op het voertuig of informatiebord. Binnen twee seconden opent de informatiewebpagina op de telefoon – zonder app, zonder inloggen.</p>
+        <p>De pagina geeft direct antwoord op de zes vragen die bewoners het meest stellen:</p>
+        <div class="proto-features">
+          <div class="proto-feat">Wie voert de meting uit?</div>
+          <div class="proto-feat">Wat wordt er precies gemeten?</div>
+          <div class="proto-feat">Waarvoor worden de gegevens gebruikt?</div>
+          <div class="proto-feat">Hoe lang duurt de activiteit?</div>
+          <div class="proto-feat">Wat gebeurt er met de gegevens?</div>
+          <div class="proto-feat">Hoe kan ik bezwaar maken?</div>
+        </div>
+        <a href="prototype.html" class="btn-primary" style="display:inline-block; margin-top:1.5rem;">
+          Open de bewonerspagina →
+        </a>
+      </div>
+      <div>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-content">
+              <div class="p-header">
+                <div class="p-title">📡 Meting in uw buurt</div>
+                <div class="p-sub">Informatie over de lopende 3D-scan</div>
+              </div>
+              <div class="p-section">
+                <div class="p-section-title">Over deze meting</div>
+                <div class="p-row"><span class="pk">Uitvoerder</span><span class="pv">Cyclomedia B.V.</span></div>
+                <div class="p-row"><span class="pk">Activiteit</span><span class="pv">LiDAR 3D-scan</span></div>
+                <div class="p-row"><span class="pk">Doel</span><span class="pv">Gemeentelijke basiskaart</span></div>
+                <div class="p-row"><span class="pk">Opdrachtgever</span><span class="pv">Gemeente Utrecht</span></div>
+              </div>
+              <div class="p-section">
+                <div class="p-section-title">Planning</div>
+                <div class="p-row"><span class="pk">Datum</span><span class="pv">8 t/m 12 mei 2026</span></div>
+                <div class="p-row"><span class="pk">Tijd</span><span class="pv">07:00 – 18:00 uur</span></div>
+                <div class="p-row"><span class="pk">Locatie</span><span class="pv">Wijk Overvecht, Utrecht</span></div>
+              </div>
+              <div class="p-section">
+                <div class="p-section-title">Meetgebied</div>
+              </div>
+              <div class="p-map">
+                <div class="p-map-text">🗺️<br>Interactieve kaart<br>meetgebied</div>
+              </div>
+              <div class="p-bezwaar">
+                <strong>Bezwaar of vragen?</strong>
+                privacy@cyclomedia.com · 030-123 45 67
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OVER MIJ -->
+<section class="over" id="over">
+  <div class="container">
+    <p class="section-label">Over de maker</p>
+    <h2 class="section-title">Henri Broekhoff</h2>
+    <div class="over-grid">
+      <div class="over-kaart">
+        <div class="over-avatar">HB</div>
+        <h3>Henri Broekhoff</h3>
+        <p>Student Built Environment<br>Hogeschool Utrecht</p>
+        <div class="badge">DATA 3 · Jaar 1</div>
+      </div>
+      <div class="over-content">
+        <h3>Achtergrond</h3>
+        <p>
+          Dit onderzoek is uitgevoerd in het kader van het vak DATA 3 aan de opleiding Built Environment van de Hogeschool Utrecht. Het focust op de snijvlak van digitale technologie, privacy en communicatie in de gebouwde omgeving.
+        </p>
+        <p>
+          De aanleiding voor dit onderzoek was de groeiende inzet van drones, LiDAR-sensoren en mobiele scanners in woonwijken, waarbij de communicatie met bewoners structureel tekortschiet. Door middel van deskresearch zijn het juridische kader, de huidige communicatiepraktijk en de behoeften van bewoners in kaart gebracht.
+        </p>
+        <p>
+          Als toekomstig professional in Built Environment wil ik bijdragen aan digitale innovaties die technisch én maatschappelijk verantwoord zijn.
+        </p>
+        <div class="over-skills">
+          <span class="skill-tag">AVG / GDPR</span>
+          <span class="skill-tag">Deskresearch</span>
+          <span class="skill-tag">Omgevingsmanagement</span>
+          <span class="skill-tag">Communicatiestrategie</span>
+          <span class="skill-tag">GIS / Kaartvisualisatie</span>
+          <span class="skill-tag">Built Environment</span>
+          <span class="skill-tag">Digital Twins</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Transparante Data-inwinning in de Stad</strong> · Henri Broekhoff · DATA 3 Built Environment · Hogeschool Utrecht · Mei 2026</p>
+  <p style="margin-top:0.5rem;">Onderzoeksrapport beschikbaar op aanvraag · <a href="mailto:henribroekhoff@gmail.com">henribroekhoff@gmail.com</a></p>
+</footer>
+
+<script>
+  function toonTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meting in uw buurt – Cyclomedia</title>
+  <style>
+    :root {
+      --blauw: #1a3a5c;
+      --lichtblauw: #2e6da4;
+      --accent: #3eb8c8;
+      --groen: #2ca87f;
+      --oranje: #e07b39;
+      --lichtgrijs: #f4f7fb;
+      --tekst: #1e1e1e;
+      --subtekst: #666;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--lichtgrijs);
+      color: var(--tekst);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, var(--blauw) 0%, #2e5a8a 100%);
+      color: white; padding: 1.2rem 1.2rem 1.5rem;
+      position: relative;
+    }
+    .header-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .logo { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px; }
+    .logo span { color: var(--accent); }
+    .header-badge {
+      background: rgba(62,184,200,0.2); border: 1px solid var(--accent);
+      color: var(--accent); padding: 0.2rem 0.7rem; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .header h1 {
+      font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem;
+    }
+    .header p { font-size: 0.85rem; opacity: 0.75; }
+
+    /* MAIN */
+    main { max-width: 480px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+
+    /* ALERT */
+    .alert {
+      background: #d4f0e4; border-left: 4px solid var(--groen);
+      padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+      display: flex; gap: 0.7rem; align-items: flex-start;
+    }
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .alert p { font-size: 0.85rem; color: #1a6b48; margin: 0; }
+    .alert strong { color: #0d4a30; }
+
+    /* KAARTEN */
+    .card {
+      background: white; border-radius: 14px; margin-bottom: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden;
+    }
+    .card-header {
+      background: var(--blauw); color: white;
+      padding: 0.7rem 1.1rem; font-weight: 700; font-size: 0.82rem;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .card-body { padding: 1rem 1.1rem; }
+
+    .info-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 0.55rem 0; border-bottom: 1px solid #f0f4f8;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-size: 0.82rem; color: var(--subtekst); flex: 1; }
+    .info-value { font-size: 0.88rem; font-weight: 600; color: var(--tekst); text-align: right; flex: 1.2; }
+
+    /* KAART */
+    .kaart-container {
+      background: #e0eed0; border-radius: 10px; margin: 0.2rem 0 0.8rem;
+      position: relative; overflow: hidden; height: 180px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .kaart-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, #d0e8c0, #b8d4a0);
+      background-size: 30px 30px, 30px 30px, 100% 100%;
+    }
+    .kaart-highlight {
+      position: absolute;
+      width: 140px; height: 90px;
+      background: rgba(62,184,200,0.25);
+      border: 2.5px solid var(--accent);
+      border-radius: 6px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(62,184,200,0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(62,184,200,0); }
+    }
+    .kaart-pin {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.6rem; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .kaart-label {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      background: rgba(26,58,92,0.85); color: white;
+      padding: 3px 10px; border-radius: 10px; font-size: 0.72rem; font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* GEGEVENS UITLEG */
+    .data-uitleg { font-size: 0.85rem; color: var(--subtekst); line-height: 1.5; }
+    .data-uitleg ul { margin: 0.5rem 0 0 1.2rem; }
+    .data-uitleg li { margin-bottom: 0.3rem; }
+
+    /* BEZWAAR */
+    .bezwaar-card { background: #fff8f0; border: 1.5px solid #f0c080; border-radius: 14px; padding: 1.1rem; margin-bottom: 1rem; }
+    .bezwaar-card h3 { font-size: 0.9rem; font-weight: 700; color: #7d4500; margin-bottom: 0.6rem; }
+    .bezwaar-contact { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+    .contact-btn {
+      display: flex; align-items: center; gap: 0.7rem;
+      background: white; border: 1.5px solid #e8c878; border-radius: 10px;
+      padding: 0.65rem 0.9rem; text-decoration: none; color: var(--tekst);
+      font-size: 0.85rem; font-weight: 600; transition: background 0.15s;
+    }
+    .contact-btn:hover { background: #fff3d4; }
+    .contact-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .contact-sub { font-size: 0.75rem; font-weight: 400; color: var(--subtekst); display: block; }
+
+    /* AVG BADGE */
+    .avg-badge {
+      display: flex; align-items: center; gap: 0.7rem;
+      background: #eef3fb; border-radius: 10px; padding: 0.8rem 1rem;
+      margin-top: 0.5rem;
+    }
+    .avg-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .avg-text { font-size: 0.78rem; color: var(--subtekst); }
+    .avg-text strong { color: var(--blauw); display: block; font-size: 0.82rem; margin-bottom: 1px; }
+
+    /* BACK LINK */
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: var(--lichtblauw); font-size: 0.82rem; font-weight: 600;
+      text-decoration: none; margin-top: 0.5rem; padding: 0.4rem 0;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    /* PROGRESS */
+    .voortgang {
+      background: white; border-radius: 10px; padding: 0.9rem 1.1rem;
+      margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .voortgang-label {
+      display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.5rem;
+    }
+    .voortgang-label span:first-child { color: var(--subtekst); }
+    .voortgang-label span:last-child { font-weight: 700; color: var(--groen); }
+    .voortgang-bar { background: #e8edf3; border-radius: 6px; height: 8px; overflow: hidden; }
+    .voortgang-fill { background: linear-gradient(to right, var(--accent), var(--groen)); height: 100%; border-radius: 6px; width: 40%; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">Cyclo<span>media</span></div>
+    <div class="header-badge">📡 Meting actief</div>
+  </div>
+  <h1>Er wordt gemeten in uw buurt</h1>
+  <p>Scan meer informatie over de lopende 3D-opname in uw wijk</p>
+</div>
+
+<main>
+
+  <a href="index.html" class="back-link">← Terug naar de showcase</a>
+
+  <div class="alert">
+    <div class="alert-icon">✓</div>
+    <p><strong>U hoeft niets te doen.</strong> Wij voeren een reguliere meting uit in opdracht van de gemeente. Op deze pagina vindt u alle informatie.</p>
+  </div>
+
+  <!-- OVER DE METING -->
+  <div class="card">
+    <div class="card-header">🏢 Over de uitvoerder</div>
+    <div class="card-body">
+      <div class="info-row">
+        <span class="info-label">Organisatie</span>
+        <span class="info-value">Cyclomedia B.V.</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Opdrachtgever</span>
+        <span class="info-value">Gemeente Utrecht</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">KVK-nummer</span>
+        <span class="info-value">12345678</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Website</span>
+        <span class="info-value" style="color: #2e6da4;">www.cyclomedia.com</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAT WORDT ER GEMETEN -->
+  <div class="card">
+    <div class="card-header">📷 Wat wordt er gemeten?</div>
+    <div class="card-body">
+      <div class="info-row">
+        <span class="info-label">Type meting</span>
+        <span class="info-value">LiDAR 3D-scan</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Methode</span>
+        <span class="info-value">Rijdend meetvoertuig</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Doel</span>
+        <span class="info-value">Gemeentelijke basiskaart 3D</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Gebruik</span>
+        <span class="info-value">Beheer openbare ruimte</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANNING -->
+  <div class="card">
+    <div class="card-header">📅 Planning</div>
+    <div class="card-body">
+      <div class="info-row">
+        <span class="info-label">Periode</span>
+        <span class="info-value">8 t/m 12 mei 2026</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Tijden</span>
+        <span class="info-value">07:00 – 18:00 uur</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Wijk</span>
+        <span class="info-value">Overvecht, Utrecht</span>
+      </div>
+
+      <div class="voortgang" style="margin:0.8rem -0.1rem -0.1rem; box-shadow:none; border-top: 1px solid #f0f4f8; border-radius:0 0 14px 14px; padding:0.9rem 1rem 0.1rem;">
+        <div class="voortgang-label">
+          <span>Voortgang meting</span>
+          <span>Dag 2 van 5</span>
+        </div>
+        <div class="voortgang-bar"><div class="voortgang-fill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KAART -->
+  <div class="card">
+    <div class="card-header">🗺️ Meetgebied</div>
+    <div class="card-body">
+      <div class="kaart-container">
+        <div class="kaart-bg"></div>
+        <div class="kaart-highlight"></div>
+        <div class="kaart-pin">📍</div>
+        <div class="kaart-label">Overvecht, Utrecht</div>
+      </div>
+      <p style="font-size:0.78rem; color:var(--subtekst); text-align:center;">Het gemarkeerde gebied wordt de komende dagen gescand</p>
+    </div>
+  </div>
+
+  <!-- WAT MET DE GEGEVENS -->
+  <div class="card">
+    <div class="card-header">🔒 Wat gebeurt er met uw gegevens?</div>
+    <div class="card-body">
+      <p class="data-uitleg">
+        Tijdens de scan kunnen beelden van personen, voertuigen of eigendommen worden vastgelegd. Wij verwerken deze gegevens conform de AVG:
+      </p>
+      <ul class="data-uitleg">
+        <li>Gezichten en kentekens worden automatisch <strong>onherkenbaar gemaakt</strong> vóór publicatie</li>
+        <li>Ruwe opnamen worden <strong>maximaal 3 maanden</strong> bewaard, daarna verwijderd</li>
+        <li>Gegevens worden <strong>niet verkocht</strong> aan derden</li>
+        <li>U kunt verwijdering van uw gegevens aanvragen</li>
+      </ul>
+      <div class="avg-badge">
+        <div class="avg-icon">🇪🇺</div>
+        <div class="avg-text">
+          <strong>AVG-conform (Artikel 13)</strong>
+          Deze meting voldoet aan de Algemene Verordening Gegevensbescherming
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEZWAAR -->
+  <div class="bezwaar-card">
+    <h3>❓ Vragen of bezwaar?</h3>
+    <p style="font-size:0.85rem; color:#7d4500; margin-bottom:0.8rem;">
+      U kunt bezwaar maken tegen de verwerking van uw persoonsgegevens of vragen stellen via:
+    </p>
+    <div class="bezwaar-contact">
+      <a href="mailto:privacy@cyclomedia.com" class="contact-btn">
+        <div class="contact-icon">✉️</div>
+        <div>
+          privacy@cyclomedia.com
+          <span class="contact-sub">Reactie binnen 5 werkdagen</span>
+        </div>
+      </a>
+      <a href="tel:0301234567" class="contact-btn">
+        <div class="contact-icon">📞</div>
+        <div>
+          030 – 123 45 67
+          <span class="contact-sub">Bereikbaar ma-vr 09:00–17:00</span>
+        </div>
+      </a>
+      <a href="#" class="contact-btn">
+        <div class="contact-icon">🌐</div>
+        <div>
+          Opt-out gezichtsherkenning
+          <span class="contact-sub">Uw adres uit de dataset laten verwijderen</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="avg-badge" style="background:#eef3fb; border-radius:12px; margin-top:0;">
+    <div class="avg-icon">ℹ️</div>
+    <div class="avg-text">
+      <strong>Meer weten over uw privacyrechten?</strong>
+      Bezoek de website van de Autoriteit Persoonsgegevens: <span style="color:#2e6da4;">www.autoriteitpersoonsgegevens.nl</span>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
